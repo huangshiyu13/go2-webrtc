@@ -6,7 +6,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'aiortc',
-        'aiohttp'
+        'aiohttp',
+        'wasmtime',
     ],
 )
 

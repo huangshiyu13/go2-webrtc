@@ -21,6 +21,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 import asyncio
 from aiortc import (
     RTCPeerConnection,
@@ -28,6 +29,7 @@ from aiortc import (
     AudioStreamTrack,
     VideoStreamTrack,
 )
+
 from aiortc.contrib.media import MediaBlackhole, MediaRecorder
 import aiohttp
 import datetime
@@ -35,6 +37,7 @@ import random
 
 # from go2_webrtc.go2_cv_video import Go2CvVideo
 from go2_webrtc.constants import SPORT_CMD, DATA_CHANNEL_TYPE
+
 import logging
 from dotenv import load_dotenv
 import os
@@ -43,7 +46,8 @@ import hashlib
 import struct
 import base64
 
-from python.go2_webrtc.lidar_decoder import LidarDecoder
+# from python.go2_webrtc.lidar_decoder import LidarDecoder
+# from go2_webrtc.lidar_decoder import LidarDecoder
 
 
 load_dotenv()
@@ -54,7 +58,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-decoder = LidarDecoder()
+# decoder = LidarDecoder()
 
 
 class Go2AudioTrack(AudioStreamTrack):
@@ -249,7 +253,8 @@ class Go2Connection:
         json_str = json_segment.decode("utf-8")
         obj = json.loads(json_str)
 
-        decoded_data = decoder.decode(remaining_data, obj['data'])
+        # decoded_data = decoder.decode(remaining_data, obj['data'])
+        decoded_data = None
 
         # Attach the remaining data to the object
         obj["data"]["data"] = decoded_data

@@ -17,6 +17,7 @@ async def test_generate_offer():
 @pytest.mark.asyncio
 async def test_set_answer():
     conn = Go2Connection()
+
     offer = await conn.generate_offer()
     # Assuming we have a valid SDP answer string (this is just a placeholder)
     answer = "v=0\no=- 4612925294212871715 2 IN IP4 127.0.0.1\ns=-\nt=0 0\na=group:BUNDLE 0\na=msid-semantic: WMS\nm=application 9 DTLS/SCTP 5000\nc=IN IP4 0.0.0.0\na=mid:0\na=sctpmap:5000 webrtc-datachannel 1024"

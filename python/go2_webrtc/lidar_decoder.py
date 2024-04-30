@@ -22,39 +22,30 @@
 import math
 import ctypes
 import numpy as np
-
 from wasmtime import Config, Engine, Store, Module, Instance, Func, FuncType
 from wasmtime import ValType
 
 
 class LidarDecoder:
     def __init__(self) -> None:
-
         config = Config()
         config.wasm_multi_value = True
         config.debug_info = True
         self.store = Store(Engine(config))
-
-        self.module = Module.from_file(self.store.engine, "libvoxel.wasm")
-
+        file_path = "/Users/huangshiyu/Downloads/hsy/Task/robotics/github/go2-webrtc/python/go2_webrtc/libvoxel.wasm"
+        self.module = Module.from_file(self.store.engine, file_path)
         self.a_callback_type = FuncType([ValType.i32()], [ValType.i32()])
         self.b_callback_type = FuncType([ValType.i32(), ValType.i32(), ValType.i32()], [])
-
         a = Func(self.store, self.a_callback_type, self.adjust_memory_size)
         b = Func(self.store, self.b_callback_type, self.copy_memory_region)
-
         self.instance = Instance(self.store, self.module, [a, b])
-
         self.generate = self.instance.exports(self.store)["e"]
         self.malloc = self.instance.exports(self.store)["f"]
         self.free = self.instance.exports(self.store)["g"]
         self.wasm_memory = self.instance.exports(self.store)["c"]
-
         self.buffer = self.wasm_memory.data_ptr(self.store)
         self.memory_size = self.wasm_memory.data_len(self.store)
-
         self.buffer_ptr = int.from_bytes(self.buffer, "little")
-
         self.HEAP8 = (ctypes.c_int8 * self.memory_size).from_address(self.buffer_ptr)
         self.HEAP16 = (ctypes.c_int16 * (self.memory_size // 2)).from_address(self.buffer_ptr)
         self.HEAP32 = (ctypes.c_int32 * (self.memory_size // 4)).from_address(self.buffer_ptr)
@@ -63,7 +54,6 @@ class LidarDecoder:
         self.HEAPU32 = (ctypes.c_uint32 * (self.memory_size // 4)).from_address(self.buffer_ptr)
         self.HEAPF32 = (ctypes.c_float * (self.memory_size // 4)).from_address(self.buffer_ptr)
         self.HEAPF64 = (ctypes.c_double * (self.memory_size // 8)).from_address(self.buffer_ptr)
-
         self.input = self.malloc(self.store, 61440)
         self.decompressBuffer = self.malloc(self.store, 80000)
         self.positions = self.malloc(self.store, 2880000)
@@ -85,7 +75,7 @@ class LidarDecoder:
         for i in range(len(sublist)):
             if target + i < len(self.HEAPU8):
                 self.HEAPU8[target + i] = sublist[i]
-    
+
     def copy_memory_region(self, t, n, a):
         self.copy_within(t, n, n + a)
 
@@ -106,7 +96,7 @@ class LidarDecoder:
             return self.HEAPU32[t >> 2]
         else:
             raise ValueError(f"invalid type for getValue: {n}")
-        
+
     def add_value_arr(self, start, value):
         if start + len(value) <= len(self.HEAPU8):
             for i, byte in enumerate(value):
@@ -125,12 +115,12 @@ class LidarDecoder:
             len(compressed_data),
             self.decompressBufferSize,
             self.decompressBuffer,
-            self.decompressedSize, 
+            self.decompressedSize,
             self.positions,
             self.uvs,
-            self.indices,          
+            self.indices,
             self.faceCount,
-            self.pointCount,        
+            self.pointCount,
             some_v
         )
 
@@ -157,3 +147,10 @@ class LidarDecoder:
             "uvs": r,
             "indices": o
         }
+
+
+if __name__ == '__main__':
+    lidar_decoder = LidarDecoder()
+    compressed_data = b'\x00\x01\x02\x03'  # Example data
+    data = {"origin": [0, 0, 10], "resolution": 0.1}
+    result = lidar_decoder.decode(compressed_data, data)

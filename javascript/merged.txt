@@ -1,0 +1,1577 @@
+File name: constants.js
+File Content Start:
+export const SPORT_CMD = {
+    1001: "Damp",
+    1002: "BalanceStand",
+    1003: "StopMove",
+    1004: "StandUp",
+    1005: "StandDown",
+    1006: "RecoveryStand",
+    1007: "Euler",
+    1008: "Move",
+    1009: "Sit",
+    1010: "RiseSit",
+    1011: "SwitchGait",
+    1012: "Trigger",
+    1013: "BodyHeight",
+    1014: "FootRaiseHeight",
+    1015: "SpeedLevel",
+    1016: "Hello",
+    1017: "Stretch",
+    1018: "TrajectoryFollow",
+    1019: "ContinuousGait",
+    1020: "Content",
+    1021: "Wallow",
+    1022: "Dance1",
+    1023: "Dance2",
+    1024: "GetBodyHeight",
+    1025: "GetFootRaiseHeight",
+    1026: "GetSpeedLevel",
+    1027: "SwitchJoystick",
+    1028: "Pose",
+    1029: "Scrape",
+    1030: "FrontFlip",
+    1031: "FrontJump",
+    1032: "FrontPounce",
+    1033: "WiggleHips",
+    1034: "GetState",
+    1035: "EconomicGait",
+    1036: "FingerHeart",
+  };
+  
+export const DataChannelType = {};
+
+(function initializeDataChannelTypes(types) {
+  const defineType = (r, name) => (r[name.toUpperCase()] = name.toLowerCase());
+
+  defineType(types, "VALIDATION");
+  defineType(types, "SUBSCRIBE");
+  defineType(types, "UNSUBSCRIBE");
+  defineType(types, "MSG");
+  defineType(types, "REQUEST");
+  defineType(types, "RESPONSE");
+  defineType(types, "VID");
+  defineType(types, "AUD");
+  defineType(types, "ERR");
+  defineType(types, "HEARTBEAT");
+  defineType(types, "RTC_INNER_REQ");
+  defineType(types, "RTC_REPORT");
+  defineType(types, "ADD_ERROR");
+  defineType(types, "RM_ERROR");
+  defineType(types, "ERRORS");
+})(DataChannelType);
+File Content End
+
+File name: threejs.html
+File Content Start:
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>ROS2 Vertex viewer</title>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="importmap">
+            {
+              "imports": {
+                "three": "https://unpkg.com/three@0.156.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.156.0/examples/jsm/"
+              }
+            }
+    </script>
+  <script src="./threejs_mock_pointcloud.js"></script>
+  <script src="./md5.js"></script>
+  <script type="module" src="threejs.js"></script>
+  <script type="module" src="threejs.init.js"></script>
+</body>
+
+</html>
+File Content End
+
+File name: index.html
+File Content Start:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unitree Go2 WebRTC Playground</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"
+    />
+    <style>
+      /* Dark mode styling */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1f1f1f;
+        color: #fff;
+      }
+      input[type="text"],
+      button {
+        background-color: #333;
+        color: #fff;
+        margin-right: 10px;
+      }
+      /* Additional styling specific to this page */
+      .container {
+        display: flex;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .input-group {
+        margin-bottom: 10px;
+      }
+      .input-group label {
+        margin-right: 10px;
+      }
+      .button-group {
+        display: flex;
+        justify-content: space-between;
+      }
+      .log {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: #333;
+        color: #fff;
+        display: block;
+        width: 95%;
+        white-space: pre-wrap; /* Preserve line breaks within the code */
+      }
+      .log-code {
+        overflow-y: auto;
+        background-color: #333;
+        color: #fff;
+        display: block;
+        white-space: pre-wrap; /* Preserve line breaks within the code */
+      }
+      .button-primary {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      .button-primary:hover {
+        background-color: #0056b3;
+      }
+      #video-frame {
+        max-width: 100%;
+        height: auto;
+        margin-left: 20px; /* Add some space between the input controls and video frame */
+      }
+      .corner-div {
+        position: fixed;
+        width: 200px;
+        height: 200px;
+        color: #fff; /* Text color */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 20px; /* Example font size */
+      }
+
+      .bottom-left {
+        bottom: 0;
+        left: 0;
+      }
+
+      .bottom-right {
+        bottom: 0;
+        right: 0;
+      }
+    </style>
+    <script src="md5.js"></script>
+    <script src="joy.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <div class="input-group">
+          <label for="token">Token:</label>
+          <input type="text" id="token" name="token" />
+        </div>
+        <div class="input-group">
+          <label for="robot-ip">Robot IP:</label>
+          <input type="text" id="robot-ip" name="robot-ip" />
+        </div>
+        <div class="input-group">
+          <label for="command">Command:</label>
+          <select id="command"></select>
+        </div>
+        <div class="button-group">
+          <button id="connect-btn" class="button-primary">Connect</button>
+          <button id="execute-btn" class="button-primary">Execute</button>
+        </div>
+      </div>
+      <video id="video-frame" width="640" height="480" autoplay></video>
+    </div>
+    <div
+      class="input-group"
+      style="display: flex; align-items: center; margin-top: 20px"
+    >
+      <input
+        type="text"
+        id="custom-command"
+        placeholder="Enter custom message"
+        style="flex-grow: 1; margin-right: 10px"
+      />
+      <button id="execute-custom-btn" class="button-primary">Execute</button>
+    </div>
+    <div>
+      <div id="log" class="log">
+        <code class="log-code" id="log-code"></code>
+      </div>
+    </div>
+
+    <div id="joy-left" class="corner-div bottom-left"></div>
+    <div id="joy-right" class="corner-div bottom-right"></div>
+
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
+
+File Content End
+
+File name: go2webrtc.js
+File Content Start:
+import { encryptKey } from "./utils.js";
+import { SPORT_CMD, DataChannelType } from "./constants.js";
+
+// Function to log messages to the console and the log window
+// TODO: need better way to handle logging - maybe use a logger
+function logMessage(text) {
+  globalThis.logMessage ? globalThis.logMessage(text) : 0;
+}
+
+export class Go2WebRTC {
+  constructor(token, robotIP, messageCallback) {
+    this.token = token;
+    this.robotIP = robotIP;
+    this.messageCallback = messageCallback;
+
+    this.msgCallbacks = new Map();
+    this.validationResult = "PENDING";
+    this.pc = new RTCPeerConnection({ sdpSemantics: "unified-plan" });
+    this.channel = this.pc.createDataChannel("data");
+
+    this.pc.addTransceiver("video", { direction: "recvonly" });
+    this.pc.addTransceiver("audio", { direction: "sendrecv" });
+    this.pc.addEventListener("track", this.trackEventHandler.bind(this));
+    this.channel.onmessage = this.messageEventHandler.bind(this);
+
+    this.heartbeatTimer = null;
+  }
+
+  trackEventHandler(event) {
+    if (event.track.kind === "video") {
+      this.VidTrackEvent = event;
+    } else {
+      this.AudTrackEvent = event;
+    }
+  }
+
+  messageEventHandler(event) {
+    if (
+      event.data &&
+      event.data.includes &&
+      !event.data.includes("heartbeat")
+    ) {
+      console.log("onmessage", event);
+      this.handleDataChannelMessage(event);
+    }
+  }
+
+  handleDataChannelMessage(event) {
+    const data =
+      typeof event.data == "string"
+        ? JSON.parse(event.data)
+        : this.dealArrayBuffer(event.data);
+    if (data.type === DataChannelType.VALIDATION) {
+      this.rtcValidation(data);
+    }
+
+    if (this.messageCallback) {
+      this.messageCallback(data);
+    }
+  }
+
+  dealArrayBuffer(n) {
+    const o = new Uint16Array(n.slice(0, 2)),
+      s = n.slice(4, 4 + o[0]),
+      c = n.slice(4 + o[0]),
+      u = new TextDecoder("utf-8"),
+      l = JSON.parse(u.decode(s));
+    return (l.data.data = c), l;
+  }
+
+  initSDP() {
+    this.pc
+      .createOffer()
+      .then((offer) => this.pc.setLocalDescription(offer))
+      .then(() => {
+        console.log("Offer created");
+        logMessage("Offer created");
+        console.log(this.pc.localDescription);
+        logMessage(this.pc.localDescription);
+        this.initSignaling();
+      })
+      .catch(console.error);
+  }
+
+  initSignaling() {
+    var answer = {
+      token: this.token,
+      id: "STA_localNetwork",
+      type: "offer",
+    };
+    answer["sdp"] = this.pc.localDescription.sdp;
+    console.log(answer);
+
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(answer),
+    };
+
+    fetch(`http://${this.robotIP}:8081/offer`, options)
+      .then((response) => {
+        console.log(`statusCode: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Response from signaling server:" + JSON.stringify(data));
+        logMessage("Establishing connection...");
+        this.pc
+          .setRemoteDescription(data)
+          .then(() => {
+            logMessage("WebRTC connection established");
+            this.startHeartbeat();
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+      });
+  }
+
+  startHeartbeat() {
+    this.heartbeatTimer = window.setInterval(() => {
+      const date = new Date();
+      (this.channel == null ? void 0 : this.channel.readyState) === "open" &&
+        (this.channel == null ||
+          this.channel.send(
+            JSON.stringify({
+              type: DataChannelType.HEARTBEAT,
+              data: {
+                timeInStr: this.formatDate(date),
+                timeInNum: Math.floor(date.valueOf() / 1e3),
+              },
+            })
+          ));
+    }, 2e3);
+  }
+
+  rtcValidation(msg) {
+    if (msg.data === "Validation Ok.") {
+      logMessage("Validation OK");
+      this.validationResult = "SUCCESS";
+
+      // TODO: execute all the registred callbacks in a map defined
+      // in the initRTC function
+
+      // TODO this should be on the callback for video on message
+      if (document.getElementById("video-frame")) {
+        logMessage("Playing video");
+        logMessage("Sending video on message");
+        this.publish("", "on", DataChannelType.VID);
+
+        document.getElementById("video-frame").srcObject =
+          this.VidTrackEvent.streams[0];
+      }
+    } else {
+      logMessage(`Sending validation key ${msg.data}`);
+      this.publish("", encryptKey(msg.data), DataChannelType.VALIDATION); // );
+    }
+  }
+  // Function to format date according to unitree's requirements
+  formatDate(r) {
+    const n = r,
+      y = n.getFullYear(),
+      m = ("0" + (n.getMonth() + 1)).slice(-2),
+      d = ("0" + n.getDate()).slice(-2),
+      hh = ("0" + n.getHours()).slice(-2),
+      mm = ("0" + n.getMinutes()).slice(-2),
+      ss = ("0" + n.getSeconds()).slice(-2);
+    return y + "-" + m + "-" + d + " " + hh + ":" + mm + ":" + ss;
+  }
+
+  dealMsgKey(channelType, channel, id) {
+    return id || `${channelType} $ ${channel}`;
+  }
+
+  saveResolve(channelType, channel, res, id) {
+    const msgKey = this.dealMsgKey(channelType, channel, id),
+      callback = this.msgCallbacks.get(msgKey);
+    callback ? callback.push(res) : this.msgCallbacks.set(msgKey, [res]);
+  }
+
+  publish(topic, data, channelType) {
+    logMessage(
+      `<- msg type:${channelType} topic:${topic} data:${JSON.stringify(data)}`
+    );
+    return new Promise((resolve, reject) => {
+      if (this.channel && this.channel.readyState === "open") {
+        const msg = {
+          type: channelType || DataChannelType.MSG,
+          topic: topic,
+          data: data,
+        };
+        this.channel.send(JSON.stringify(msg));
+        const id =
+          data && data.uuid
+            ? data.uuid
+            : data && data.header && data.header.identity.id;
+        this.saveResolve(
+          channelType || DataChannelType.MSG,
+          topic,
+          resolve,
+          id
+        );
+      } else {
+        console.error("data channel is not open", topic);
+        reject("data channel is not open");
+      }
+    });
+  }
+
+  publishApi(topic, api_id, data) {
+    const uniqID =
+      (new Date().valueOf() % 2147483648) + Math.floor(Math.random() * 1e3);
+
+    console.log("Command:", api_id);
+
+    this.publish(topic, {
+      header: { identity: { id: uniqID, api_id: api_id} },
+      parameter: data
+    });
+  }
+
+  // Function to publish a message to the robot with full header
+  //  .publishReqNew(topic, { //     api_id: s.api_id,
+  //     data: s.data,
+  //     id: s.id,
+  //     priority: !!s.priority,
+  //   })
+  publishReqNew(topic, msg) {
+    const uniqID =
+      (new Date().valueOf() % 2147483648) + Math.floor(Math.random() * 1e3);
+    if (!(msg != null && msg.api_id))
+      return console.error("missing api id"), Promise.reject("missing api id");
+    const _msg = {
+      header: {
+        identity: {
+          id: msg.id || uniqID,
+          api_id: (msg == null ? void 0 : msg.api_id) || 0,
+        },
+      },
+      parameter: "",
+    };
+    return (
+      msg != null &&
+        msg.data &&
+        (_msg.parameter =
+          typeof msg.data == "string" ? msg.data : JSON.stringify(msg.data)),
+      msg != null && msg.priority && (_msg.header.policy = { priority: 1 }),
+      this.publish(topic, _msg, DataChannelType.REQUEST)
+      // publish(rtc, topic,  {api_id: 1016, data: 1016}, DataChannelType.REQUEST)
+    );
+  }
+}
+
+// TODO: to be removed, for debugging
+globalThis.SPORT_CMD = SPORT_CMD;
+globalThis.DataChannelType = DataChannelType;
+
+File Content End
+
+File name: index.js
+File Content Start:
+import { Go2WebRTC } from "./go2webrtc.js";
+
+// Function to log messages to the console and the log window
+function logMessage(text) {
+  var log = document.querySelector("#log");
+  var msg = document.getElementById("log-code");
+  msg.textContent += truncateString(text, 300) + "\n";
+  log.scrollTop = log.scrollHeight;
+}
+globalThis.logMessage = logMessage;
+
+// Function to load saved values from localStorage
+function loadSavedValues() {
+  const savedToken = localStorage.getItem("token");
+  const savedRobotIP = localStorage.getItem("robotIP");
+
+  if (savedToken) {
+    document.getElementById("token").value = savedToken;
+  }
+  if (savedRobotIP) {
+    document.getElementById("robot-ip").value = savedRobotIP;
+  }
+
+  const commandSelect = document.getElementById("command");
+  Object.entries(SPORT_CMD).forEach(([value, text]) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = text;
+    commandSelect.appendChild(option);
+  });
+}
+
+// Function to save values to localStorage
+function saveValuesToLocalStorage() {
+  const token = document.getElementById("token").value;
+  const robotIP = document.getElementById("robot-ip").value;
+
+  localStorage.setItem("token", token);
+  localStorage.setItem("robotIP", robotIP);
+}
+
+// Function to handle connect button click
+function handleConnectClick() {
+  // You can add connection logic here
+  // For now, let's just log the values
+  const token = document.getElementById("token").value;
+  const robotIP = document.getElementById("robot-ip").value;
+
+  console.log("Token:", token);
+  console.log("Robot IP:", robotIP);
+  logMessage(`Connecting to robot on ip ${robotIP}...`);
+
+  // Save the values to localStorage
+  saveValuesToLocalStorage();
+
+  // Initialize RTC
+  globalThis.rtc = new Go2WebRTC(token, robotIP);
+  globalThis.rtc.initSDP();
+}
+
+function handleExecuteClick() {
+  const uniqID =
+    (new Date().valueOf() % 2147483648) + Math.floor(Math.random() * 1e3);
+  const command = parseInt(document.getElementById("command").value);
+
+  console.log("Command:", command);
+
+  globalThis.rtc.publish("rt/api/sport/request", {
+    header: { identity: { id: uniqID, api_id: command } },
+    parameter: JSON.stringify(command),
+    // api_id: command,
+  });
+}
+
+
+function handleExecuteCustomClick() {
+    const command = document.getElementById("custom-command").value;
+  
+    console.log("Command:", command);
+  
+    globalThis.rtc.channel.send(command);
+  }
+
+function truncateString(str, maxLength) {
+  if (typeof str !== "string") {
+    str = JSON.stringify(str);
+  }
+
+  if (str.length > maxLength) {
+    return str.substring(0, maxLength) + "...";
+  } else {
+    return str;
+  }
+}
+
+
+function joystickTick(joyLeft, joyRight) {
+  const y = -1 * (joyRight.GetPosX() - 100) / 50;
+  const x = -1 * (joyLeft.GetPosY() - 100) / 50;
+  const z = -1 * (joyLeft.GetPosX() - 100) / 50;
+
+  if (x === 0 && y === 0 && z === 0) {
+    return;
+  }
+
+  console.log("Joystick Linear:", x, y);
+
+  globalThis.rtc.publishApi("rt/api/sport/request", 1008, JSON.stringify({x: x, y: y, z: z}));
+
+}
+
+function addJoysticks() {
+  const joyConfig = {
+    internalFillColor: "#FFFFFF",
+    internalLineWidth: 2,
+    internalStrokeColor: "rgba(240, 240, 240, 0.3)",
+    externalLineWidth: 1,
+    externalStrokeColor: "#FFFFFF",
+  };
+  var joyLeft = new JoyStick("joy-left", joyConfig);
+  var joyRight = new JoyStick("joy-right", joyConfig);
+
+  setInterval( joystickTick, 100, joyLeft, joyRight );
+}
+
+// Load saved values when the page loads
+document.addEventListener("DOMContentLoaded", loadSavedValues);
+document.addEventListener("DOMContentLoaded", addJoysticks);
+
+// Attach event listener to connect button
+document
+  .getElementById("connect-btn")
+  .addEventListener("click", handleConnectClick);
+
+document
+  .getElementById("execute-btn")
+  .addEventListener("click", handleExecuteClick);
+
+document
+  .getElementById("execute-custom-btn")
+  .addEventListener("click", handleExecuteCustomClick);
+
+File Content End
+
+File name: md5.js
+File Content Start:
+/*
+ * JavaScript MD5
+ * https://github.com/blueimp/JavaScript-MD5
+ *
+ * Copyright 2011, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ *
+ * Based on
+ * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
+ * Digest Algorithm, as defined in RFC 1321.
+ * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
+ * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+ * Distributed under the BSD License
+ * See http://pajhome.org.uk/crypt/md5 for more info.
+ */
+
+/* global define */
+
+/* eslint-disable strict */
+
+;(function ($) {
+    'use strict'
+  
+    /**
+     * Add integers, wrapping at 2^32.
+     * This uses 16-bit operations internally to work around bugs in interpreters.
+     *
+     * @param {number} x First integer
+     * @param {number} y Second integer
+     * @returns {number} Sum
+     */
+    function safeAdd(x, y) {
+      var lsw = (x & 0xffff) + (y & 0xffff)
+      var msw = (x >> 16) + (y >> 16) + (lsw >> 16)
+      return (msw << 16) | (lsw & 0xffff)
+    }
+  
+    /**
+     * Bitwise rotate a 32-bit number to the left.
+     *
+     * @param {number} num 32-bit number
+     * @param {number} cnt Rotation count
+     * @returns {number} Rotated number
+     */
+    function bitRotateLeft(num, cnt) {
+      return (num << cnt) | (num >>> (32 - cnt))
+    }
+  
+    /**
+     * Basic operation the algorithm uses.
+     *
+     * @param {number} q q
+     * @param {number} a a
+     * @param {number} b b
+     * @param {number} x x
+     * @param {number} s s
+     * @param {number} t t
+     * @returns {number} Result
+     */
+    function md5cmn(q, a, b, x, s, t) {
+      return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b)
+    }
+    /**
+     * Basic operation the algorithm uses.
+     *
+     * @param {number} a a
+     * @param {number} b b
+     * @param {number} c c
+     * @param {number} d d
+     * @param {number} x x
+     * @param {number} s s
+     * @param {number} t t
+     * @returns {number} Result
+     */
+    function md5ff(a, b, c, d, x, s, t) {
+      return md5cmn((b & c) | (~b & d), a, b, x, s, t)
+    }
+    /**
+     * Basic operation the algorithm uses.
+     *
+     * @param {number} a a
+     * @param {number} b b
+     * @param {number} c c
+     * @param {number} d d
+     * @param {number} x x
+     * @param {number} s s
+     * @param {number} t t
+     * @returns {number} Result
+     */
+    function md5gg(a, b, c, d, x, s, t) {
+      return md5cmn((b & d) | (c & ~d), a, b, x, s, t)
+    }
+    /**
+     * Basic operation the algorithm uses.
+     *
+     * @param {number} a a
+     * @param {number} b b
+     * @param {number} c c
+     * @param {number} d d
+     * @param {number} x x
+     * @param {number} s s
+     * @param {number} t t
+     * @returns {number} Result
+     */
+    function md5hh(a, b, c, d, x, s, t) {
+      return md5cmn(b ^ c ^ d, a, b, x, s, t)
+    }
+    /**
+     * Basic operation the algorithm uses.
+     *
+     * @param {number} a a
+     * @param {number} b b
+     * @param {number} c c
+     * @param {number} d d
+     * @param {number} x x
+     * @param {number} s s
+     * @param {number} t t
+     * @returns {number} Result
+     */
+    function md5ii(a, b, c, d, x, s, t) {
+      return md5cmn(c ^ (b | ~d), a, b, x, s, t)
+    }
+  
+    /**
+     * Calculate the MD5 of an array of little-endian words, and a bit length.
+     *
+     * @param {Array} x Array of little-endian words
+     * @param {number} len Bit length
+     * @returns {Array<number>} MD5 Array
+     */
+    function binlMD5(x, len) {
+      /* append padding */
+      x[len >> 5] |= 0x80 << len % 32
+      x[(((len + 64) >>> 9) << 4) + 14] = len
+  
+      var i
+      var olda
+      var oldb
+      var oldc
+      var oldd
+      var a = 1732584193
+      var b = -271733879
+      var c = -1732584194
+      var d = 271733878
+  
+      for (i = 0; i < x.length; i += 16) {
+        olda = a
+        oldb = b
+        oldc = c
+        oldd = d
+  
+        a = md5ff(a, b, c, d, x[i], 7, -680876936)
+        d = md5ff(d, a, b, c, x[i + 1], 12, -389564586)
+        c = md5ff(c, d, a, b, x[i + 2], 17, 606105819)
+        b = md5ff(b, c, d, a, x[i + 3], 22, -1044525330)
+        a = md5ff(a, b, c, d, x[i + 4], 7, -176418897)
+        d = md5ff(d, a, b, c, x[i + 5], 12, 1200080426)
+        c = md5ff(c, d, a, b, x[i + 6], 17, -1473231341)
+        b = md5ff(b, c, d, a, x[i + 7], 22, -45705983)
+        a = md5ff(a, b, c, d, x[i + 8], 7, 1770035416)
+        d = md5ff(d, a, b, c, x[i + 9], 12, -1958414417)
+        c = md5ff(c, d, a, b, x[i + 10], 17, -42063)
+        b = md5ff(b, c, d, a, x[i + 11], 22, -1990404162)
+        a = md5ff(a, b, c, d, x[i + 12], 7, 1804603682)
+        d = md5ff(d, a, b, c, x[i + 13], 12, -40341101)
+        c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290)
+        b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329)
+  
+        a = md5gg(a, b, c, d, x[i + 1], 5, -165796510)
+        d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632)
+        c = md5gg(c, d, a, b, x[i + 11], 14, 643717713)
+        b = md5gg(b, c, d, a, x[i], 20, -373897302)
+        a = md5gg(a, b, c, d, x[i + 5], 5, -701558691)
+        d = md5gg(d, a, b, c, x[i + 10], 9, 38016083)
+        c = md5gg(c, d, a, b, x[i + 15], 14, -660478335)
+        b = md5gg(b, c, d, a, x[i + 4], 20, -405537848)
+        a = md5gg(a, b, c, d, x[i + 9], 5, 568446438)
+        d = md5gg(d, a, b, c, x[i + 14], 9, -1019803690)
+        c = md5gg(c, d, a, b, x[i + 3], 14, -187363961)
+        b = md5gg(b, c, d, a, x[i + 8], 20, 1163531501)
+        a = md5gg(a, b, c, d, x[i + 13], 5, -1444681467)
+        d = md5gg(d, a, b, c, x[i + 2], 9, -51403784)
+        c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473)
+        b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734)
+  
+        a = md5hh(a, b, c, d, x[i + 5], 4, -378558)
+        d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463)
+        c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562)
+        b = md5hh(b, c, d, a, x[i + 14], 23, -35309556)
+        a = md5hh(a, b, c, d, x[i + 1], 4, -1530992060)
+        d = md5hh(d, a, b, c, x[i + 4], 11, 1272893353)
+        c = md5hh(c, d, a, b, x[i + 7], 16, -155497632)
+        b = md5hh(b, c, d, a, x[i + 10], 23, -1094730640)
+        a = md5hh(a, b, c, d, x[i + 13], 4, 681279174)
+        d = md5hh(d, a, b, c, x[i], 11, -358537222)
+        c = md5hh(c, d, a, b, x[i + 3], 16, -722521979)
+        b = md5hh(b, c, d, a, x[i + 6], 23, 76029189)
+        a = md5hh(a, b, c, d, x[i + 9], 4, -640364487)
+        d = md5hh(d, a, b, c, x[i + 12], 11, -421815835)
+        c = md5hh(c, d, a, b, x[i + 15], 16, 530742520)
+        b = md5hh(b, c, d, a, x[i + 2], 23, -995338651)
+  
+        a = md5ii(a, b, c, d, x[i], 6, -198630844)
+        d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415)
+        c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905)
+        b = md5ii(b, c, d, a, x[i + 5], 21, -57434055)
+        a = md5ii(a, b, c, d, x[i + 12], 6, 1700485571)
+        d = md5ii(d, a, b, c, x[i + 3], 10, -1894986606)
+        c = md5ii(c, d, a, b, x[i + 10], 15, -1051523)
+        b = md5ii(b, c, d, a, x[i + 1], 21, -2054922799)
+        a = md5ii(a, b, c, d, x[i + 8], 6, 1873313359)
+        d = md5ii(d, a, b, c, x[i + 15], 10, -30611744)
+        c = md5ii(c, d, a, b, x[i + 6], 15, -1560198380)
+        b = md5ii(b, c, d, a, x[i + 13], 21, 1309151649)
+        a = md5ii(a, b, c, d, x[i + 4], 6, -145523070)
+        d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379)
+        c = md5ii(c, d, a, b, x[i + 2], 15, 718787259)
+        b = md5ii(b, c, d, a, x[i + 9], 21, -343485551)
+  
+        a = safeAdd(a, olda)
+        b = safeAdd(b, oldb)
+        c = safeAdd(c, oldc)
+        d = safeAdd(d, oldd)
+      }
+      return [a, b, c, d]
+    }
+  
+    /**
+     * Convert an array of little-endian words to a string
+     *
+     * @param {Array<number>} input MD5 Array
+     * @returns {string} MD5 string
+     */
+    function binl2rstr(input) {
+      var i
+      var output = ''
+      var length32 = input.length * 32
+      for (i = 0; i < length32; i += 8) {
+        output += String.fromCharCode((input[i >> 5] >>> i % 32) & 0xff)
+      }
+      return output
+    }
+  
+    /**
+     * Convert a raw string to an array of little-endian words
+     * Characters >255 have their high-byte silently ignored.
+     *
+     * @param {string} input Raw input string
+     * @returns {Array<number>} Array of little-endian words
+     */
+    function rstr2binl(input) {
+      var i
+      var output = []
+      output[(input.length >> 2) - 1] = undefined
+      for (i = 0; i < output.length; i += 1) {
+        output[i] = 0
+      }
+      var length8 = input.length * 8
+      for (i = 0; i < length8; i += 8) {
+        output[i >> 5] |= (input.charCodeAt(i / 8) & 0xff) << i % 32
+      }
+      return output
+    }
+  
+    /**
+     * Calculate the MD5 of a raw string
+     *
+     * @param {string} s Input string
+     * @returns {string} Raw MD5 string
+     */
+    function rstrMD5(s) {
+      return binl2rstr(binlMD5(rstr2binl(s), s.length * 8))
+    }
+  
+    /**
+     * Calculates the HMAC-MD5 of a key and some data (raw strings)
+     *
+     * @param {string} key HMAC key
+     * @param {string} data Raw input string
+     * @returns {string} Raw MD5 string
+     */
+    function rstrHMACMD5(key, data) {
+      var i
+      var bkey = rstr2binl(key)
+      var ipad = []
+      var opad = []
+      var hash
+      ipad[15] = opad[15] = undefined
+      if (bkey.length > 16) {
+        bkey = binlMD5(bkey, key.length * 8)
+      }
+      for (i = 0; i < 16; i += 1) {
+        ipad[i] = bkey[i] ^ 0x36363636
+        opad[i] = bkey[i] ^ 0x5c5c5c5c
+      }
+      hash = binlMD5(ipad.concat(rstr2binl(data)), 512 + data.length * 8)
+      return binl2rstr(binlMD5(opad.concat(hash), 512 + 128))
+    }
+  
+    /**
+     * Convert a raw string to a hex string
+     *
+     * @param {string} input Raw input string
+     * @returns {string} Hex encoded string
+     */
+    function rstr2hex(input) {
+      var hexTab = '0123456789abcdef'
+      var output = ''
+      var x
+      var i
+      for (i = 0; i < input.length; i += 1) {
+        x = input.charCodeAt(i)
+        output += hexTab.charAt((x >>> 4) & 0x0f) + hexTab.charAt(x & 0x0f)
+      }
+      return output
+    }
+  
+    /**
+     * Encode a string as UTF-8
+     *
+     * @param {string} input Input string
+     * @returns {string} UTF8 string
+     */
+    function str2rstrUTF8(input) {
+      return unescape(encodeURIComponent(input))
+    }
+  
+    /**
+     * Encodes input string as raw MD5 string
+     *
+     * @param {string} s Input string
+     * @returns {string} Raw MD5 string
+     */
+    function rawMD5(s) {
+      return rstrMD5(str2rstrUTF8(s))
+    }
+    /**
+     * Encodes input string as Hex encoded string
+     *
+     * @param {string} s Input string
+     * @returns {string} Hex encoded string
+     */
+    function hexMD5(s) {
+      return rstr2hex(rawMD5(s))
+    }
+    /**
+     * Calculates the raw HMAC-MD5 for the given key and data
+     *
+     * @param {string} k HMAC key
+     * @param {string} d Input string
+     * @returns {string} Raw MD5 string
+     */
+    function rawHMACMD5(k, d) {
+      return rstrHMACMD5(str2rstrUTF8(k), str2rstrUTF8(d))
+    }
+    /**
+     * Calculates the Hex encoded HMAC-MD5 for the given key and data
+     *
+     * @param {string} k HMAC key
+     * @param {string} d Input string
+     * @returns {string} Raw MD5 string
+     */
+    function hexHMACMD5(k, d) {
+      return rstr2hex(rawHMACMD5(k, d))
+    }
+  
+    /**
+     * Calculates MD5 value for a given string.
+     * If a key is provided, calculates the HMAC-MD5 value.
+     * Returns a Hex encoded string unless the raw argument is given.
+     *
+     * @param {string} string Input string
+     * @param {string} [key] HMAC key
+     * @param {boolean} [raw] Raw output switch
+     * @returns {string} MD5 output
+     */
+    function md5(string, key, raw) {
+      if (!key) {
+        if (!raw) {
+          return hexMD5(string)
+        }
+        return rawMD5(string)
+      }
+      if (!raw) {
+        return hexHMACMD5(key, string)
+      }
+      return rawHMACMD5(key, string)
+    }
+  
+    if (typeof define === 'function' && define.amd) {
+      define(function () {
+        return md5
+      })
+    } else if (typeof module === 'object' && module.exports) {
+      module.exports = md5
+    } else {
+      $.md5 = md5
+    }
+  })(this)
+File Content End
+
+File name: threejs.init.js
+File Content Start:
+import { Go2WebRTC } from "./go2webrtc.js";
+
+globalThis.logMessage = console.log;
+
+// Function to print incoming data
+function setIncomingData(data) {
+
+  console.log("setIncomingData", data);
+
+  if (globalThis.rtc.validationResult === "SUCCESS" && data.type === DataChannelType.VALIDATION) {
+    console.log("Subscribing to topic rt/utlidar/voxel_map_compressed");
+    // globalThis.rtc.channel.send(
+    //   JSON.stringify({
+    //     type: "subscribe",
+    //     topic: "rt/utlidar/voxel_map_compressed",
+    //   })
+    // );
+  }
+
+  if (data.type === "msg" && data.topic === "rt/utlidar/voxel_map_compressed") {
+    globalThis.voxelMap = data.data;
+  }
+}
+
+// Function to load saved values from localStorage
+function loadSavedValues() {
+  const savedToken = localStorage.getItem("token");
+  const savedRobotIP = localStorage.getItem("robotIP");
+
+  console.log("savedToken", savedToken);
+  console.log("savedRobotIP", savedRobotIP);
+
+  // Initialize RTC
+//   globalThis.rtc = new Go2WebRTC(savedToken, savedRobotIP, setIncomingData);
+//   globalThis.rtc.initSDP();
+}
+
+// Load saved values when the page loads
+document.addEventListener("DOMContentLoaded", loadSavedValues);
+
+File Content End
+
+File name: threejs.js
+File Content Start:
+import * as THREE from "three";
+
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import Stats from "three/addons/libs/stats.module.js";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
+
+class VoxelWorld {
+  scene;
+  mesh = new THREE.Mesh();
+  material;
+  cellSize_X;
+  cellSize_Y;
+  cellSize_Z;
+  tileSize;
+  tileTextureWidth;
+  tileTextureHeight;
+  currCellDataInfo;
+  faces = [
+    {
+      dir: [-1, 0, 0],
+      corners: [
+        { pos: [0, 1, 0], uv: [0, 1] },
+        { pos: [0, 0, 0], uv: [1, 1] },
+        { pos: [0, 1, 1], uv: [0, 0] },
+        { pos: [0, 0, 1], uv: [1, 0] },
+      ],
+    },
+    {
+      dir: [1, 0, 0],
+      corners: [
+        { pos: [1, 1, 1], uv: [1, 0] },
+        { pos: [1, 0, 1], uv: [0, 0] },
+        { pos: [1, 1, 0], uv: [1, 1] },
+        { pos: [1, 0, 0], uv: [0, 1] },
+      ],
+    },
+    {
+      dir: [0, -1, 0],
+      corners: [
+        { pos: [1, 0, 1], uv: [1, 0] },
+        { pos: [0, 0, 1], uv: [0, 0] },
+        { pos: [1, 0, 0], uv: [1, 1] },
+        { pos: [0, 0, 0], uv: [0, 1] },
+      ],
+    },
+    {
+      dir: [0, 1, 0],
+      corners: [
+        { pos: [0, 1, 1], uv: [0, 0] },
+        { pos: [1, 1, 1], uv: [1, 0] },
+        { pos: [0, 1, 0], uv: [0, 1] },
+        { pos: [1, 1, 0], uv: [1, 1] },
+      ],
+    },
+    {
+      dir: [0, 0, -1],
+      corners: [
+        { pos: [1, 0, 0], uv: [0, 0] },
+        { pos: [0, 0, 0], uv: [1, 0] },
+        { pos: [1, 1, 0], uv: [0, 1] },
+        { pos: [0, 1, 0], uv: [1, 1] },
+      ],
+    },
+    {
+      dir: [0, 0, 1],
+      corners: [
+        { pos: [0, 0, 1], uv: [0, 0] },
+        { pos: [1, 0, 1], uv: [1, 0] },
+        { pos: [0, 1, 1], uv: [0, 1] },
+        { pos: [1, 1, 1], uv: [1, 1] },
+      ],
+    },
+  ];
+
+  constructor(n, o) {
+    (this.scene = n),
+      (this.mesh = new THREE.Mesh()),
+      (this.tileSize = (o == null ? void 0 : o.tileSize) || 1),
+      (this.tileTextureWidth = (o == null ? void 0 : o.tileTextureWidth) || 1),
+      (this.tileTextureHeight =
+        (o == null ? void 0 : o.tileTextureHeight) || 1),
+      (this.material =
+        (o == null ? void 0 : o.material) ||
+        new THREE.MeshBasicMaterial({ color: 16777215 })),
+      (this.currCellDataInfo = void 0),
+      (this.cellSize_X = 128),
+      (this.cellSize_Y = 128),
+      (this.cellSize_Z = 30);
+  }
+  clearVoxel() {
+    this.currCellDataInfo = void 0;
+  }
+  adjacent(n, o) {
+    const { cellSize_X: s, cellSize_Y: c, cellSize_Z: u } = this,
+      [l, f, _] = o;
+    return l > s || f > c || _ > u ? 0 : this.getVoxel(n, l, f, _);
+  }
+  calBitForIndex(n, o) {
+    return (n >> (7 - o)) & 1;
+  }
+  getVoxel(n, o, s, c) {
+    const { cellSize_X: u, cellSize_Y: l, calBitForIndex: f } = this,
+      _ = u * l * c + u * s + o,
+      g = Math.floor(_ / 8),
+      v = _ % 8;
+    return f.call(this, n[g], v);
+  }
+  generateGeometryData(n, o, s, c) {
+    const {
+      adjacent: u,
+      cellSize_X: l,
+      cellSize_Y: f,
+      tileSize: _,
+      tileTextureWidth: g,
+      tileTextureHeight: v,
+    } = this,
+      T = [],
+      E = [],
+      y = [];
+    (this.cellSize_X = o[0]),
+      (this.cellSize_Y = o[1]),
+      (this.cellSize_Z = o[2]);
+    let S = 0;
+    for (let C = 0; C < n.byteLength; C++)
+      if (n[C] > 0) {
+        const R = n[C];
+        for (let A = 0; A < 8; A++)
+          if (this.calBitForIndex(R, A)) {
+            const O = C * 8 + A;
+            S++;
+            const L = Math.floor(O / (l * f)),
+              P = O % (l * f),
+              $ = Math.floor(P / l),
+              B = P % l,
+              F = (L * s + c) * Math.round(1 / s),
+              J = Math.floor((F < -10 ? -10 : F > 20 ? 20 : F) + 10);
+            for (const { dir: H, corners: j } of this.faces)
+              if (!u.call(this, n, [B + H[0], $ + H[1], L + H[2]])) {
+                const he = T.length / 3;
+                for (const { pos: Te, uv: re } of j)
+                  T.push(Te[0] + B, Te[1] + $, Te[2] + L),
+                    E.push(((J + re[0]) * _) / g, 1 - ((1 - re[1]) * _) / v);
+                y.push(he, he + 1, he + 2, he + 2, he + 1, he + 3);
+              }
+          }
+      }
+    return {
+      positionsFloat32Array: new Float32Array(T),
+      uvsFloat32Array: new Float32Array(E),
+      indices: y,
+      pointCount: S,
+    };
+  }
+  updateMeshesForData2() {
+    // debugger
+    // // set n to the content of vortex_msg1192132805_pointcloud.json
+    const { currCellDataInfo, material, scene } = this;
+    if (!currCellDataInfo || !scene) return;
+    const { geometryData, resolution: resolution, origin } = currCellDataInfo;
+
+    this.mesh.geometry.dispose();
+    this.mesh.material.dispose();
+    scene.remove(this.mesh);
+
+    const positions = convert(geometryData.positions);
+    const uvs = convert(geometryData.uvs);
+    const indices = convert32(geometryData.indices);
+    // debugger
+    const buffGeometry = new THREE.BufferGeometry();
+    buffGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(positions || [], 3)
+    );
+    buffGeometry.setAttribute(
+      "uv",
+      new THREE.BufferAttribute(uvs || [], 2, !0)
+    );
+    buffGeometry.setIndex(new THREE.BufferAttribute(indices || [], 1));
+    this.mesh = new THREE.Mesh(buffGeometry, material);
+    const res = resolution || 0.1;
+    this.mesh.scale.set(res, res, res);
+    this.mesh.position.set(origin[0] || 0, origin[1] || 0, origin[2] || 0);
+    scene.add(this.mesh);
+  }
+}
+
+function convert(objData) {
+  return Uint8Array.from(objData);
+}
+function convert32(objData) {
+  return Uint32Array.from(objData);
+}
+
+const scene = new THREE.Scene();
+scene.rotation.x -= Math.PI / 2;
+
+const camera = new THREE.PerspectiveCamera(
+  45,
+  window.innerWidth / window.innerHeight,
+  1,
+  100
+);
+camera.position.z = 10;
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+
+window.addEventListener(
+  "resize",
+  function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    render();
+  },
+  false
+);
+
+const stats = Stats();
+document.body.appendChild(stats.dom);
+
+const gui = new GUI();
+const cameraFolder = gui.addFolder("Camera");
+cameraFolder.add(camera.position, "z", 0, 10);
+cameraFolder.open();
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  render();
+  stats.update();
+}
+
+function render() {
+  renderer.render(scene, camera);
+}
+
+const init = ({
+  renderParent,
+  scene = new THREE.Scene(),
+  renderer = new THREE.WebGLRenderer({ antialias: !0, alpha: !0 }),
+  camera = new THREE.PerspectiveCamera(50),
+  controls = new OrbitControls(camera, renderer.domElement),
+  ambientLight = new THREE.AmbientLight(16777215),
+  gridHelper = new THREE.GridHelper(40, 40, 8947848),
+  gridHelperGroup = new THREE.Group(),
+  viewType = 1,
+  stats = Stats(),
+  showStats = !1,
+  currCameraPosition = new THREE.Vector3(0, 0, 0),
+  firstViewTargetPoint = new THREE.Mesh(),
+  firstViewTargetPosition = new THREE.Vector3(4, 0, 0),
+  firstCameraPosition = new THREE.Vector3(-1.2, 0, 1),
+  thirdViewInitPosition = new THREE.Vector3(-3, 0, 3),
+}) => {
+  if (!renderParent) return;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)),
+    (scene.background = new THREE.Color(2631720));
+  const A = renderParent.clientWidth || 0,
+    O = renderParent.clientHeight || 0;
+  renderer.setSize(A, O),
+    (renderer.shadowMap.enabled = !0),
+    renderParent.appendChild(renderer.domElement),
+    (scene.fog = viewType === 1 ? null : new THREE.Fog(2631720, 0.015, 20)),
+    (camera.aspect = A / O),
+    camera.updateProjectionMatrix(),
+    viewType === 1
+      ? camera.position.copy(thirdViewInitPosition)
+      : camera.position.copy(firstCameraPosition),
+    currCameraPosition.copy(thirdViewInitPosition),
+    scene.add(camera);
+  const L = new THREE.BoxGeometry(0.1, 0.1, 0.1),
+    P = new THREE.MeshBasicMaterial({
+      color: 16711680,
+      transparent: !0,
+      opacity: 0,
+    });
+  (firstViewTargetPoint.geometry = L),
+    (firstViewTargetPoint.material = P),
+    firstViewTargetPoint.position.copy(firstViewTargetPosition),
+    scene.add(firstViewTargetPoint),
+    (controls.enableDamping = !0),
+    (controls.enabled = viewType === 1),
+    (controls.enablePan = !1),
+    (controls.minPolarAngle = 0.2),
+    (controls.maxPolarAngle = (Math.PI / 4) * 3),
+    showStats &&
+    (document.body.appendChild(stats.dom),
+      (stats.dom.style.top = "80px"),
+      (stats.dom.style.left = "115px")),
+    gridHelperGroup.add(gridHelper),
+    gridHelper.rotateX(Math.PI / 2),
+    scene.add(gridHelperGroup),
+    scene.add(ambientLight);
+  // this.loadModel();
+  const tileSize = 32,
+    tileTextureWidth = 1024,
+    tileTextureHeight = 32;
+  const textureLoader = new THREE.TextureLoader().load(
+    "./models/axisColor4.png"
+  );
+  textureLoader.magFilter = THREE.NearestFilter;
+  textureLoader.minFilter = THREE.NearestFilter;
+  const worldMaterial = new THREE.MeshBasicMaterial({
+    map: textureLoader,
+    side: THREE.DoubleSide,
+    transparent: !1,
+  });
+  const pointVoxelWorld = new VoxelWorld(scene, {
+    tileSize,
+    tileTextureWidth,
+    tileTextureHeight,
+    material: worldMaterial,
+  });
+  const pointUpdated = !1;
+  // window.addEventListener("resize", this.resize.bind(this));
+  return {
+    pointVoxelWorld,
+    pointUpdated,
+  };
+};
+
+const { pointVoxelWorld, pointUpdated } = init({
+  renderParent: document.body,
+  scene,
+  camera: camera,
+  controls,
+  renderer,
+});
+
+animate()
+
+
+window.getBinaryData = (filepath) => {
+  return fetch(filepath)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      return response.arrayBuffer();
+    })
+    .then(arrayBuffer => {
+      return new Uint8Array(arrayBuffer);
+    })
+    .catch(error => {
+      throw error;
+    });
+};
+
+const threeJSWorker = new Worker(
+  new URL("/assets/three.worker.js", self.location)
+);
+window._threejsworker = threeJSWorker;
+threeJSWorker.onmessage = (re) => {
+  console.log("Binary Data", re);
+  pointVoxelWorld.currCellDataInfo = re.data
+  pointVoxelWorld.updateMeshesForData2()
+}
+
+setInterval(() => {
+  try {
+    console.warn("TICK");
+    window
+      .getBinaryData(`/assets/example.bin`)
+      .then((vortexBinaryData) => {
+        const _jsonLength = vortexBinaryData[0];
+        const _jsonOffset = 4;
+        const _jsonString = String.fromCharCode.apply(
+          null,
+          vortexBinaryData.slice(
+            _jsonOffset,
+            _jsonOffset + _jsonLength
+          )
+        );
+        const jsonOBJ = JSON.parse(_jsonString);
+        threeJSWorker.postMessage({
+          resolution: jsonOBJ.data.resolution,
+          origin: jsonOBJ.data.origin,
+          width: jsonOBJ.data.width,
+          data: vortexBinaryData.slice(_jsonOffset + _jsonLength),
+        });
+      });
+  } catch (e) {
+    console.error("ERROR DURING VERTEX LOAD", e);
+  }
+}, 1000)
+File Content End
+
+File name: utils.js
+File Content Start:
+// import { MD5} from './md5.js';
+
+
+function hexToBase64(r) {
+  var o;
+  const n =
+    (o = r.match(/.{1,2}/g)) == null ? void 0 : o.map((s) => parseInt(s, 16));
+  return window.btoa(String.fromCharCode.apply(null, n));
+}
+
+export const encryptKey = (r) => {
+  const n = `UnitreeGo2_${r}`,
+    o = encryptByMd5(n);
+  return hexToBase64(o);
+};
+
+function encryptByMd5(r) {
+  return md5(r).toString();
+}
+
+File Content End
+
+File name: joy.min.js
+File Content Start:
+/*
+ * Name          : joy.js
+ * @author       : Roberto D'Amico (Bobboteck)
+ * Last modified : 09.06.2020
+ * Revision      : 1.1.6
+ *
+ * Modification History:
+ * Date         Version     Modified By     Description
+ * 2021-12-21   2.0.0       Roberto D'Amico New version of the project that integrates the callback functions, while 
+ *                                          maintaining compatibility with previous versions. Fixed Issue #27 too, 
+ *                                          thanks to @artisticfox8 for the suggestion.
+ * 2020-06-09   1.1.6       Roberto D'Amico Fixed Issue #10 and #11
+ * 2020-04-20   1.1.5       Roberto D'Amico Correct: Two sticks in a row, thanks to @liamw9534 for the suggestion
+ * 2020-04-03               Roberto D'Amico Correct: InternalRadius when change the size of canvas, thanks to 
+ *                                          @vanslipon for the suggestion
+ * 2020-01-07   1.1.4       Roberto D'Amico Close #6 by implementing a new parameter to set the functionality of 
+ *                                          auto-return to 0 position
+ * 2019-11-18   1.1.3       Roberto D'Amico Close #5 correct indication of East direction
+ * 2019-11-12   1.1.2       Roberto D'Amico Removed Fix #4 incorrectly introduced and restored operation with touch 
+ *                                          devices
+ * 2019-11-12   1.1.1       Roberto D'Amico Fixed Issue #4 - Now JoyStick work in any position in the page, not only 
+ *                                          at 0,0
+ * 
+ * The MIT License (MIT)
+ *
+ *  This file is part of the JoyStick Project (https://github.com/bobboteck/JoyStick).
+ *	Copyright (c) 2015 Roberto D'Amico (Bobboteck).
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+let StickStatus={xPosition:0,yPosition:0,x:0,y:0,cardinalDirection:"C"};var JoyStick=function(t,e,i){var o=void 0===(e=e||{}).title?"joystick":e.title,n=void 0===e.width?0:e.width,a=void 0===e.height?0:e.height,r=void 0===e.internalFillColor?"#00AA00":e.internalFillColor,c=void 0===e.internalLineWidth?2:e.internalLineWidth,s=void 0===e.internalStrokeColor?"#003300":e.internalStrokeColor,d=void 0===e.externalLineWidth?2:e.externalLineWidth,u=void 0===e.externalStrokeColor?"#008000":e.externalStrokeColor,h=void 0===e.autoReturnToCenter||e.autoReturnToCenter;i=i||function(t){};var S=document.getElementById(t);S.style.touchAction="none";var f=document.createElement("canvas");f.id=o,0===n&&(n=S.clientWidth),0===a&&(a=S.clientHeight),f.width=n,f.height=a,S.appendChild(f);var l=f.getContext("2d"),k=0,g=2*Math.PI,x=(f.width-(f.width/2+10))/2,v=x+5,P=x+30,m=f.width/2,C=f.height/2,p=f.width/10,y=-1*p,w=f.height/10,L=-1*w,F=m,E=C;function W(){l.beginPath(),l.arc(m,C,P,0,g,!1),l.lineWidth=d,l.strokeStyle=u,l.stroke()}function T(){l.beginPath(),F<x&&(F=v),F+x>f.width&&(F=f.width-v),E<x&&(E=v),E+x>f.height&&(E=f.height-v),l.arc(F,E,x,0,g,!1);var t=l.createRadialGradient(m,C,5,m,C,200);t.addColorStop(0,r),t.addColorStop(1,s),l.fillStyle=t,l.fill(),l.lineWidth=c,l.strokeStyle=s,l.stroke()}function D(){let t="",e=F-m,i=E-C;return i>=L&&i<=w&&(t="C"),i<L&&(t="N"),i>w&&(t="S"),e<y&&("C"===t?t="W":t+="W"),e>p&&("C"===t?t="E":t+="E"),t}"ontouchstart"in document.documentElement?(f.addEventListener("touchstart",function(t){k=1},!1),document.addEventListener("touchmove",function(t){1===k&&t.targetTouches[0].target===f&&(F=t.targetTouches[0].pageX,E=t.targetTouches[0].pageY,"BODY"===f.offsetParent.tagName.toUpperCase()?(F-=f.offsetLeft,E-=f.offsetTop):(F-=f.offsetParent.offsetLeft,E-=f.offsetParent.offsetTop),l.clearRect(0,0,f.width,f.height),W(),T(),StickStatus.xPosition=F,StickStatus.yPosition=E,StickStatus.x=((F-m)/v*100).toFixed(),StickStatus.y=((E-C)/v*100*-1).toFixed(),StickStatus.cardinalDirection=D(),i(StickStatus))},!1),document.addEventListener("touchend",function(t){k=0,h&&(F=m,E=C);l.clearRect(0,0,f.width,f.height),W(),T(),StickStatus.xPosition=F,StickStatus.yPosition=E,StickStatus.x=((F-m)/v*100).toFixed(),StickStatus.y=((E-C)/v*100*-1).toFixed(),StickStatus.cardinalDirection=D(),i(StickStatus)},!1)):(f.addEventListener("mousedown",function(t){k=1},!1),document.addEventListener("mousemove",function(t){1===k&&(F=t.pageX,E=t.pageY,"BODY"===f.offsetParent.tagName.toUpperCase()?(F-=f.offsetLeft,E-=f.offsetTop):(F-=f.offsetParent.offsetLeft,E-=f.offsetParent.offsetTop),l.clearRect(0,0,f.width,f.height),W(),T(),StickStatus.xPosition=F,StickStatus.yPosition=E,StickStatus.x=((F-m)/v*100).toFixed(),StickStatus.y=((E-C)/v*100*-1).toFixed(),StickStatus.cardinalDirection=D(),i(StickStatus))},!1),document.addEventListener("mouseup",function(t){k=0,h&&(F=m,E=C);l.clearRect(0,0,f.width,f.height),W(),T(),StickStatus.xPosition=F,StickStatus.yPosition=E,StickStatus.x=((F-m)/v*100).toFixed(),StickStatus.y=((E-C)/v*100*-1).toFixed(),StickStatus.cardinalDirection=D(),i(StickStatus)},!1)),W(),T(),this.GetWidth=function(){return f.width},this.GetHeight=function(){return f.height},this.GetPosX=function(){return F},this.GetPosY=function(){return E},this.GetX=function(){return((F-m)/v*100).toFixed()},this.GetY=function(){return((E-C)/v*100*-1).toFixed()},this.GetDir=function(){return D()}};
+File Content End
+
